@@ -1,0 +1,36 @@
+# Production-style stack: Postgres + API + nginx-served SPA.  Copy .env.example to .env first.
+#   docker compose up -d --build
+#   docker compose run --rm api npm run seed      # optional demo data (DESTRUCTIVE: resets tables)
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: itsm_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: itsm
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U itsm_user -d itsm"], interval: 5s, retries: 10 }
+  api:
+    build: ./backend
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://itsm_user:${POSTGRES_PASSWORD}@db:5432/itsm
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      CLIENT_ORIGIN: ${PUBLIC_URL:-http://localhost:8080}
+      APP_URL: ${PUBLIC_URL:-http://localhost:8080}
+      TRUST_PROXY: 1
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-false}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-6}
+      SMTP_URL: ${SMTP_URL:-}
+      INBOUND_EMAIL_SECRET: ${INBOUND_EMAIL_SECRET:-}
+      UPLOAD_DIR: /app/uploads
+    volumes: [uploads:/app/uploads]
+  web:
+    build: ./frontend
+    depends_on: [api]
+    ports: ["8080:80"]
+volumes:
+  pgdata:
+  uploads:

@@ -1,0 +1,445 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Rust-free query compiler: no native engine binary, smaller images, runs on
+// any Node runtime. The PrismaPg driver adapter is wired up in src/config/db.ts.
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+enum Role {
+  END_USER
+  AGENT
+  ADMIN
+}
+
+enum TicketType {
+  INCIDENT
+  SERVICE_REQUEST
+}
+
+enum Channel {
+  WEB
+  EMAIL
+  VIRTUAL_AGENT
+  API
+}
+
+enum TicketStatus {
+  NEW
+  AI_ANALYSIS
+  ASSIGNED
+  ACCEPTED
+  IN_PROGRESS
+  PENDING_USER
+  PENDING_VENDOR
+  PENDING_APPROVAL
+  RESOLVED
+  CLOSED
+  REOPENED
+  ESCALATED
+  CANCELLED
+}
+
+enum Priority {
+  P1
+  P2
+  P3
+  P4
+}
+
+enum SLAStatus {
+  HEALTHY
+  WARNING
+  AT_RISK
+  BREACHED
+}
+
+enum KbStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum WebhookKind {
+  SLACK
+  TEAMS
+  GENERIC
+}
+
+model User {
+  id                String              @id @default(cuid())
+  email             String              @unique
+  passwordHash      String
+  name              String
+  role              Role                @default(END_USER)
+  department        String?
+  locale            String              @default("en")
+  timezone          String              @default("UTC")
+  active            Boolean             @default(true)
+  failedLogins      Int                 @default(0)
+  lockedUntil       DateTime?
+  lastLoginAt       DateTime?
+  employee          Employee?
+  ticketsRaised     Ticket[]            @relation("Requester")
+  comments          TicketComment[]
+  notifications     Notification[]
+  refreshTokens     RefreshToken[]
+  aiFeedback        AIFeedback[]
+  vaSessions        VirtualAgentSession[]
+  createdAt         DateTime            @default(now())
+}
+
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  family     String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([family])
+}
+
+model Employee {
+  id               String          @id @default(cuid())
+  userId           String          @unique
+  user             User            @relation(fields: [userId], references: [id])
+  team             String
+  location         String?
+  timezone         String          @default("UTC")
+  shiftStartMin    Int             @default(540)
+  shiftEndMin      Int             @default(1080)
+  workDays         Int[]           @default([1, 2, 3, 4, 5])
+  capacity         Int             @default(10)
+  available        Boolean         @default(true)
+  avgResolutionHrs Float           @default(4)
+  skills           EmployeeSkill[]
+  assignedTickets  Ticket[]        @relation("Assignee")
+}
+
+model Skill {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  employeeSkills EmployeeSkill[]
+}
+
+model EmployeeSkill {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  skillId    String
+  skill      Skill    @relation(fields: [skillId], references: [id])
+  level      Int      @default(50)
+
+  @@unique([employeeId, skillId])
+}
+
+model Category {
+  id             String   @id @default(cuid())
+  name           String
+  subcategory    String?
+  service        String?
+  requiredSkills String[]
+  active         Boolean  @default(true)
+  tickets        Ticket[]
+}
+
+model SLAPolicy {
+  id                String        @id @default(cuid())
+  priority          Priority      @unique
+  responseMins      Int
+  resolutionMins    Int
+  businessHoursOnly Boolean       @default(false)
+  slaInstances      SLAInstance[]
+}
+
+model Ticket {
+  id             String             @id @default(cuid())
+  ticketNumber   String             @unique
+  subject        String
+  description    String
+  type           TicketType         @default(INCIDENT)
+  channel        Channel            @default(WEB)
+  language       String             @default("en")
+  sentiment      Float?
+  requesterId    String
+  requester      User               @relation("Requester", fields: [requesterId], references: [id])
+  assigneeId     String?
+  assignee       Employee?          @relation("Assignee", fields: [assigneeId], references: [id])
+  categoryId     String?
+  category       Category?          @relation(fields: [categoryId], references: [id])
+  priority       Priority           @default(P3)
+  impact         String?
+  urgency        String?
+  status         TicketStatus       @default(NEW)
+  tags           String[]
+  needsTriage    Boolean            @default(false)
+  isMajor        Boolean            @default(false)
+  reopenCount    Int                @default(0)
+  aiSummary      String?
+  aiSummaryAt    DateTime?
+  aiSummaryProvider String?
+  resolutionNotes String?
+  duplicateOfId  String?
+  duplicateOf    Ticket?            @relation("Duplicates", fields: [duplicateOfId], references: [id])
+  duplicates     Ticket[]           @relation("Duplicates")
+  firstResponseAt DateTime?
+  csatScore      Int?
+  csatComment    String?
+  csatAt         DateTime?
+  aiAnalysis     AIAnalysis?
+  slaInstance    SLAInstance?
+  comments       TicketComment[]
+  attachments    TicketAttachment[]
+  history        TicketHistory[]
+  ruleExecutions RuleExecution[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  resolvedAt     DateTime?
+  closedAt       DateTime?
+
+  @@index([status, priority])
+  @@index([assigneeId, status])
+  @@index([requesterId])
+  @@index([createdAt])
+  @@index([categoryId, createdAt])
+}
+
+model AIAnalysis {
+  id               String   @id @default(cuid())
+  ticketId         String   @unique
+  ticket           Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  category         String
+  subcategory      String?
+  priority         String
+  type             String?
+  confidence       Float
+  provider         String   @default("rules")
+  language         String?
+  sentiment        Float?
+  rootCause        String?
+  requiredSkills   String[]
+  recommendedDocs  Json?
+  similarTickets   String[]
+  assignmentReason Json?
+  createdAt        DateTime @default(now())
+}
+
+model SLAInstance {
+  id                  String    @id @default(cuid())
+  ticketId            String    @unique
+  ticket              Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  policyId            String
+  policy              SLAPolicy @relation(fields: [policyId], references: [id])
+  startedAt           DateTime  @default(now())
+  responseDue         DateTime
+  resolutionDue       DateTime
+  businessHoursOnly   Boolean   @default(false)
+  status              SLAStatus @default(HEALTHY)
+  pausedAt            DateTime?
+  responseMetAt       DateTime?
+  responseBreachedAt  DateTime?
+  breachedAt          DateTime?
+
+  @@index([status])
+}
+
+model TicketComment {
+  id         String   @id @default(cuid())
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  body       String
+  internal   Boolean  @default(false)
+  aiAssisted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+}
+
+model TicketAttachment {
+  id           String   @id @default(cuid())
+  ticketId     String
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  fileName     String
+  mimeType     String
+  sizeBytes    Int
+  storageKey   String   @unique
+  uploadedById String
+  uploadedAt   DateTime @default(now())
+
+  @@index([ticketId])
+}
+
+model TicketHistory {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  event     String
+  oldValue  String?
+  newValue  String?
+  actor     String?
+  createdAt DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+}
+
+model KnowledgeArticle {
+  id             String   @id @default(cuid())
+  title          String
+  category       String?
+  language       String   @default("en")
+  status         KbStatus @default(PUBLISHED)
+  keywords       String[]
+  body           String
+  url            String?
+  views          Int      @default(0)
+  helpful        Int      @default(0)
+  notHelpful     Int      @default(0)
+  createdById    String?
+  sourceTicketId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   @default("info")
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  entity    String
+  entityId  String?
+  oldValue  Json?
+  newValue  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+}
+
+/// Governance: every call to an AI provider (or its offline fallback) is logged.
+model AIInteraction {
+  id           String   @id @default(cuid())
+  feature      String
+  provider     String
+  model        String?
+  success      Boolean
+  fallback     Boolean  @default(false)
+  latencyMs    Int
+  inputTokens  Int?
+  outputTokens Int?
+  error        String?
+  ticketId     String?
+  userId       String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([feature])
+}
+
+/// Human-in-the-loop signal: thumbs up/down on any AI suggestion.
+model AIFeedback {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketId  String?
+  feature   String
+  verdict   String
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([feature, verdict])
+}
+
+/// Self-service deflection tracking (was the KB answer enough, or did a ticket follow?).
+model DeflectionEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  query      String
+  articleIds String[]
+  outcome    String   @default("SHOWN")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model VirtualAgentSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Json     @default("[]")
+  ticketId  String?
+  resolved  Boolean?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model EscalationRule {
+  id          String          @id @default(cuid())
+  name        String
+  enabled     Boolean         @default(true)
+  position    Int             @default(0)
+  conditions  Json
+  actionType  String
+  actionParam Json?
+  executions  RuleExecution[]
+  createdAt   DateTime        @default(now())
+}
+
+model RuleExecution {
+  id       String         @id @default(cuid())
+  ruleId   String
+  rule     EscalationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  ticketId String
+  ticket   Ticket         @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  firedAt  DateTime       @default(now())
+
+  @@unique([ruleId, ticketId])
+}
+
+model Webhook {
+  id             String      @id @default(cuid())
+  name           String
+  kind           WebhookKind @default(GENERIC)
+  url            String
+  secret         String?
+  events         String[]
+  enabled        Boolean     @default(true)
+  failureCount   Int         @default(0)
+  lastStatus     Int?
+  lastDeliveryAt DateTime?
+  createdAt      DateTime    @default(now())
+}
+
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

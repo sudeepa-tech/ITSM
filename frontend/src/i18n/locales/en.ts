@@ -1,0 +1,89 @@
+/** Source of truth for all UI strings. Other locales are Partial<> and fall back to English per key. */
+export const en = {
+  "common.save": "Save changes", "common.cancel": "Cancel", "common.close": "Close", "common.search": "Search", "common.loading": "Loading…", "common.retry": "Try again",
+  "common.back": "Back", "common.send": "Send", "common.edit": "Edit", "common.delete": "Delete", "common.add": "Add", "common.none": "None", "common.all": "All",
+  "common.yes": "Yes", "common.no": "No", "common.optional": "optional", "common.results": "Total: {n}", "common.page": "Page {p} of {n}", "common.prev": "Previous", "common.next": "Next",
+  "common.unassigned": "Unassigned", "common.error": "Something went wrong.", "common.saved": "Saved", "common.open": "Open", "common.refresh": "Refresh",
+
+  "nav.home": "Home", "nav.tickets": "Tickets", "nav.my_tickets": "My tickets", "nav.new": "New ticket", "nav.kb": "Knowledge base", "nav.dashboard": "Overview",
+  "nav.admin": "Administration", "nav.users": "Users", "nav.team": "Team and skills", "nav.sla": "SLA and hours", "nav.automation": "Automation", "nav.ai": "AI settings",
+  "nav.integrations": "Integrations", "nav.governance": "AI governance and audit", "nav.profile": "Preferences", "nav.signout": "Sign out", "nav.skip": "Skip to content", "nav.menu": "Menu",
+
+  "top.search": "Search tickets and articles", "top.palette": "Search or jump to…", "top.notifications": "Notifications", "top.no_notifications": "You're all caught up.",
+  "top.mark_read": "Mark all as read", "top.language": "Language", "top.theme": "Switch light or dark theme", "top.no_results": "No matches",
+
+  "auth.title": "Sign in", "auth.subtitle": "Use your work account to reach the service desk.", "auth.email": "Work email", "auth.password": "Password",
+  "auth.submit": "Sign in", "auth.submitting": "Signing in…", "auth.demo": "Demo accounts", "auth.session": "Your session expired. Please sign in again.",
+  "role.ADMIN": "Administrator", "role.AGENT": "Agent", "role.END_USER": "Employee",
+
+  "f.subject": "Subject", "f.description": "Description", "f.requester": "Requester", "f.assignee": "Assigned to", "f.category": "Category", "f.priority": "Priority",
+  "f.status": "Status", "f.type": "Type", "f.channel": "Channel", "f.created": "Created", "f.updated": "Updated", "f.sla": "Deadline", "f.language": "Language",
+  "f.sentiment": "Mood", "f.team": "Team", "f.confidence": "Confidence", "f.number": "Ticket",
+
+  "status.NEW": "New", "status.AI_ANALYSIS": "Analysing", "status.ASSIGNED": "Assigned", "status.ACCEPTED": "Accepted", "status.IN_PROGRESS": "In progress",
+  "status.PENDING_USER": "Waiting for reply", "status.PENDING_VENDOR": "Waiting on vendor", "status.PENDING_APPROVAL": "Awaiting approval", "status.RESOLVED": "Resolved",
+  "status.CLOSED": "Closed", "status.REOPENED": "Reopened", "status.ESCALATED": "Escalated", "status.CANCELLED": "Cancelled",
+  "pri.P1": "Critical", "pri.P2": "High", "pri.P3": "Normal", "pri.P4": "Low",
+  "type.INCIDENT": "Incident", "type.SERVICE_REQUEST": "Request",
+  "channel.WEB": "Web", "channel.EMAIL": "Email", "channel.VIRTUAL_AGENT": "Chat", "channel.API": "API",
+  "mood.negative": "Frustrated", "mood.neutral": "Neutral", "mood.positive": "Positive",
+
+  "sla.left": "{t} left", "sla.over": "{t} overdue", "sla.paused": "Clock paused", "sla.met": "Met", "sla.missed": "Missed", "sla.none": "No deadline",
+  "sla.status.HEALTHY": "On track", "sla.status.WARNING": "Watch", "sla.status.AT_RISK": "At risk", "sla.status.BREACHED": "Breached",
+  "sla.response": "First response", "sla.resolution": "Resolution",
+
+  "q.title.staff": "Ticket queue", "q.title.user": "My tickets", "q.view.open": "Open", "q.view.mine": "Assigned to me", "q.view.unassigned": "Unassigned",
+  "q.view.triage": "Needs triage", "q.view.risk": "At risk", "q.view.resolved": "Resolved", "q.view.all": "All", "q.search": "Search by number, subject or requester",
+  "q.empty.title": "No tickets here", "q.empty.body": "Try another view, or clear the search.", "q.empty.user": "You haven't raised any tickets yet.",
+  "q.selected": "{n} selected", "q.bulk.assign": "Assign to…", "q.bulk.status": "Set status…", "q.bulk.priority": "Set priority…", "q.bulk.done": "{n} tickets updated",
+  "q.sort.sla": "Deadline, soonest first", "q.sort.createdAt": "Newest first", "q.sort.priority": "Priority", "q.sort.updatedAt": "Recently updated", "q.sort.sentiment": "Most frustrated first",
+  "q.major": "Part of a possible major incident", "q.triage": "Needs triage", "q.select_all": "Select all on this page",
+
+  "nt.title": "Raise a request", "nt.lede": "Describe the problem in your own words, in any language. We check for instant answers while you write.",
+  "nt.subject": "What's happening?", "nt.subject_ph": "For example: I can't connect to the VPN", "nt.desc": "Details", "nt.desc_ph": "What did you try? Any error messages? When did it start?",
+  "nt.attach": "Attachments", "nt.attach_hint": "Screenshots, logs, PDF or Office files, up to {mb} MB each", "nt.add_files": "Add files",
+  "nt.submit": "Submit request", "nt.submitting": "Submitting…", "nt.side.title": "While you write", "nt.side.idle": "Start typing and we'll look for answers and check whether this was already reported.",
+  "nt.checking": "Checking…", "nt.answers": "Instant answers", "nt.no_answers": "No matching articles yet.", "nt.solved": "This solved it", "nt.not_solved": "Still need help",
+  "nt.solved_thanks": "Glad that worked. No ticket was created.", "nt.known": "{n} colleagues reported something similar recently. The team is aware. You can still submit to get updates.",
+  "nt.dupe": "You already have an open ticket that looks the same:", "nt.reading": "How we read your request", "nt.priority_note": "Triage sets the priority. The service desk can change it.",
+  "nt.created": "Ticket {n} created", "nt.override": "Category", "nt.pri_override": "Priority",
+
+  "d.summary": "Summary", "d.summarize": "Summarize", "d.regen": "Refresh", "d.conversation": "Conversation", "d.no_comments": "No replies yet.", "d.reply": "Reply", "d.note": "Internal note",
+  "d.reply_ph": "Write a reply…", "d.note_ph": "Only staff can see this note", "d.send": "Send reply", "d.add_note": "Add note", "d.draft": "Draft with AI", "d.tone.empathetic": "Warm",
+  "d.tone.concise": "Brief", "d.tone.formal": "Formal", "d.translate": "Translate to {lang}", "d.timeline": "Activity", "d.details": "Details", "d.copilot": "Copilot",
+  "d.steps": "Suggested steps", "d.articles": "Related articles", "d.similar": "Similar tickets", "d.why": "Why this person", "d.resolve": "Resolve", "d.start": "Start work",
+  "d.wait": "Ask for info", "d.escalate": "Escalate", "d.reassign": "Reassign…", "d.auto": "Route with AI", "d.reopen": "Reopen", "d.confirm": "Fixed, close ticket",
+  "d.rate": "How was the support?", "d.rate_thanks": "Thanks for the feedback.", "d.attachments": "Attachments", "d.add_files": "Add files",
+  "d.notes_title": "Resolution notes", "d.notes_ph": "What fixed it? The requester can see this.", "d.make_kb": "Turn into article", "d.ai_drafted": "Drafted with AI",
+  "d.working": "Our team is working on this. Add details below if you have them.", "d.wait_you": "We're waiting for your reply.", "d.resolved_q": "Marked as resolved. Does everything work now?",
+  "d.dupe_of": "Duplicate of {n}", "d.triage_banner": "The AI wasn't confident enough to route this on its own. Please assign it.", "d.insights": "Load copilot insights",
+  "d.resolved_via": "Resolved in {t}", "d.first_response": "First response {t}", "d.similar_fix": "How it was fixed", "d.no_steps": "No suggestions yet.", "d.copied": "Copied",
+  "d.pick_agent": "Pick an agent", "d.escalated_by": "Escalated", "d.tags": "Tags",
+
+  "ai.label": "AI", "ai.anthropic": "Written by AI", "ai.rules": "Offline rules, no AI model", "ai.confidence": "{n}% confident", "ai.check": "AI can make mistakes. Review before sending.",
+  "ai.good": "Good", "ai.poor": "Poor",
+
+  "kb.title": "Knowledge base", "kb.lede": "Step-by-step answers written by the service desk.", "kb.search": "Search articles", "kb.categories": "Categories", "kb.all": "All articles",
+  "kb.empty": "No articles found.", "kb.new": "New article", "kb.edit": "Edit article", "kb.helpful_q": "Was this article helpful?", "kb.thanks": "Thanks for letting us know.",
+  "kb.views": "{n} views", "kb.updated": "Updated {t}", "kb.f.title": "Title", "kb.f.body": "Article", "kb.f.keywords": "Keywords, comma separated", "kb.f.status": "Status",
+  "kb.published": "Published", "kb.draft": "Draft", "kb.archived": "Archived", "kb.drafted_from": "Drafted from {n}. Review before publishing.",
+
+  "va.title": "Ask the service desk", "va.sub": "Answers come only from our knowledge base.", "va.ph": "Ask a question…", "va.hello": "Hi {name}, what do you need help with?",
+  "va.ticket": "Create a ticket from this chat", "va.solved": "That solved it", "va.sources": "Sources", "va.thinking": "Reading the knowledge base…", "va.ticket_made": "Ticket {n} created.",
+  "va.open": "Open help chat", "va.new": "New chat",
+
+  "db.title": "Service overview", "db.hello": "Welcome back, {name}", "db.range": "Last {n} days", "db.incident": "Possible major incident",
+  "db.incident_body": "{n} similar {cat} tickets in the last hour, for example “{sample}”", "db.incident_cta": "Review tickets", "db.created": "Created", "db.resolved": "Resolved",
+  "db.open": "Open now", "db.unassigned": "Unassigned", "db.triage": "Needs triage", "db.sla": "Deadlines met", "db.first": "First response", "db.csat": "Satisfaction",
+  "db.vol": "Ticket volume", "db.mttr": "Time to resolve, by priority", "db.cats": "Where requests come from", "db.ai": "What the AI is doing", "db.ai_sub": "Measured on your real tickets.",
+  "db.ai.auto": "Routed without human triage", "db.ai.override": "Category changed by an agent", "db.ai.reassign": "Assignments changed by an agent", "db.ai.fb": "AI output rated good by agents",
+  "db.ai.defl": "Self-service answers that solved it", "db.ai.va": "Chats resolved without a ticket", "db.ai.fallback": "AI calls answered by offline rules", "db.mine": "Assigned to me",
+  "db.risk": "At risk", "db.breached": "Breached", "db.my_queue": "Your queue, nearest deadline first", "db.no_data": "Not enough data yet", "db.empty_queue": "Nothing assigned to you right now.",
+  "db.mood": "Frustrated requesters", "db.reopen": "Reopened", "db.view_all": "View all tickets",
+
+  "pf.title": "Preferences", "pf.lede": "These settings follow you to every device.", "pf.language": "Language", "pf.tz": "Time zone", "pf.theme": "Appearance", "pf.light": "Light",
+  "pf.dark": "Dark", "pf.name": "Display name", "pf.pw": "Change password", "pf.pw_cur": "Current password", "pf.pw_new": "New password",
+  "pf.pw_hint": "At least 8 characters with a letter and a number. This signs you out on other devices.", "pf.pw_done": "Password changed",
+} as const;
+
+export type Key = keyof typeof en;
