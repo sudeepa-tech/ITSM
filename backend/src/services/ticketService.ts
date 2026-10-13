@@ -5,12 +5,12 @@ import { ApiError } from "../middleware/errorHandler";
 import { JwtPayload } from "../utils/jwt";
 import { classifyTicket } from "./ai/classifier";
 import { detectClusters, findDuplicates } from "./ai/duplicates";
-import { CandidateEmployee, pickAssignee } from "./assignmentEngine";
-// import {
-//   CandidateEmployee,
-//   pickAssignee,
-//   scoreCandidates,
-// } from "./assignmentEngine";
+// import { CandidateEmployee, pickAssignee } from "./assignmentEngine";
+import {
+  CandidateEmployee,
+  pickAssignee,
+  scoreCandidates,
+} from "./assignmentEngine";
 import { dispatchEvent, notifyStaff, notifyUser } from "./notifications";
 import { emitToStaff, emitToUser } from "./socket";
 import { getCalendar, getSetting, getWeights } from "./settings";
