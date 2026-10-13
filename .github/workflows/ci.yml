@@ -1,0 +1,36 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: itsm_user, POSTGRES_PASSWORD: itsm_password, POSTGRES_DB: itsm }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U itsm_user" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://itsm_user:itsm_password@localhost:5432/itsm
+      JWT_SECRET: ci-secret-0123456789abcdef
+      INBOUND_EMAIL_SECRET: dev-inbound-secret
+    defaults: { run: { working-directory: backend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: backend/package-lock.json }
+      - run: npm ci
+      - run: npx prisma generate && npx prisma migrate deploy
+      - run: npm run typecheck && npm test
+      - run: npm run seed
+      - run: |
+          npx tsx src/server.ts & 
+          for i in $(seq 1 30); do curl -sf localhost:4000/api/health && break; sleep 1; done
+          npm run smoke
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci && npm run typecheck && npm test && npm run build

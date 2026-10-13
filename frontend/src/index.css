@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ tokens
+   Violet (--ai) is reserved for one meaning only: "an AI produced this". */
+:root {
+  --canvas: 237 241 243; --surface: 255 255 255; --sunken: 246 249 250; --line: 217 224 228;
+  --ink: 20 35 43; --ink2: 74 91 102; --ink3: 102 118 127;
+  --brand: 14 90 138; --solid: 14 90 138; --solid-hover: 10 72 112; --tint: 227 240 248;
+  --ai: 109 74 224; --ai-tint: 239 234 253;
+  --ok: 21 112 74; --ok-tint: 225 243 234; --warn: 138 90 0; --warn-tint: 251 240 213;
+  --risk: 180 71 15; --risk-tint: 251 231 218; --bad: 179 34 46; --bad-tint: 251 225 227;
+  --bar-ok: 30 138 90; --bar-warn: 224 161 6; --bar-risk: 228 102 31; --bar-bad: 211 48 60;
+  --shadow: 20 35 43;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --canvas: 12 22 29; --surface: 20 34 43; --sunken: 16 29 37; --line: 42 62 75;
+  --ink: 230 238 242; --ink2: 168 186 197; --ink3: 132 152 164;
+  --brand: 109 182 228; --solid: 34 122 176; --solid-hover: 48 140 196; --tint: 22 46 62;
+  --ai: 176 150 252; --ai-tint: 38 30 66;
+  --ok: 88 200 148; --ok-tint: 18 52 38; --warn: 240 190 80; --warn-tint: 56 44 14;
+  --risk: 246 150 100; --risk-tint: 62 34 20; --bad: 250 130 140; --bad-tint: 62 24 28;
+  --bar-ok: 48 168 112; --bar-warn: 224 168 30; --bar-risk: 236 116 52; --bar-bad: 228 70 82;
+  --shadow: 0 0 0;
+  color-scheme: dark;
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-canvas text-ink font-sans text-[14px] leading-[1.5] antialiased; }
+  :lang(ar) body, :lang(ar) { font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif; }
+  :lang(hi) body, :lang(hi) { font-family: "Noto Sans Devanagari", "Nirmala UI", "Mangal", system-ui, sans-serif; }
+  :lang(ja) body, :lang(ja) { font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", Meiryo, system-ui, sans-serif; }
+  :focus-visible { @apply outline outline-2 outline-offset-2 outline-brand; }
+  ::selection { @apply bg-tint; }
+  h1, h2, h3 { @apply font-semibold tracking-tight; }
+  textarea, input, select, button { font: inherit; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+}
+
+@layer components {
+  .tnum { font-variant-numeric: tabular-nums; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 h-9 text-[13.5px] font-semibold whitespace-nowrap transition-colors disabled:opacity-50 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-solid text-white hover:bg-solid-hover; }
+  .btn-quiet { @apply btn border border-line bg-surface text-ink hover:bg-sunken; }
+  .btn-ghost { @apply btn text-ink2 hover:bg-sunken hover:text-ink; }
+  .btn-danger { @apply btn bg-bad text-white hover:opacity-90; }
+  .btn-sm { @apply h-8 px-2.5 text-[13px]; }
+  .btn-icon { @apply inline-flex items-center justify-center rounded-md h-9 w-9 text-ink2 hover:bg-sunken hover:text-ink transition-colors; }
+  .input { @apply w-full rounded-md border border-line bg-surface px-3 h-9 text-[14px] text-ink placeholder:text-ink3 transition-colors hover:border-ink3 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25; }
+  textarea.input { @apply h-auto py-2 leading-relaxed; }
+  select.input { @apply pe-8 appearance-none bg-no-repeat; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2366767f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-position: right .7rem center; }
+  [dir="rtl"] select.input { background-position: left .7rem center; }
+  .label { @apply block text-[12.5px] font-semibold text-ink2 mb-1.5; }
+  .panel { @apply bg-surface border border-line rounded-lg; }
+  .chip { @apply inline-flex items-center gap-1 rounded px-1.5 h-[22px] text-[12px] font-semibold leading-none whitespace-nowrap; }
+  /* AI provenance: a violet rule on the leading edge, wherever machine output appears. */
+  .ai-block { @apply relative bg-ai-tint/60 ps-4 pe-3 py-2.5 rounded-md; }
+  .ai-block::before { content: ""; @apply absolute start-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-ai; }
+  .skeleton { @apply relative overflow-hidden bg-line/60 rounded; }
+  .skeleton::after { content: ""; @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-surface/60 to-transparent; animation: shimmer 1.4s infinite; }
+  [dir="rtl"] .skeleton::after { @apply translate-x-full; animation-direction: reverse; }
+  .scroll-y { scrollbar-width: thin; scrollbar-color: rgb(var(--line)) transparent; }
+}
